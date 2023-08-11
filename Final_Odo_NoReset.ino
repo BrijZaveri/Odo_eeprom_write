@@ -94,18 +94,29 @@ void CANReceiver() {
           byte b = CAN.read();
           Counter++;
           if (Counter == 1) {
-            o0 = b;
+            o0 = b;                                   //o0 is Odometer high byte
+//            Serial.print("O0 = ");
+//            Serial.println(o0,HEX);
           }
           else if (Counter == 2) {
-            o1 = b;
+            o1 = b;                                   //o1 is odometer middle byte
+//            Serial.print("o1 = ");
+//            Serial.println(o1,HEX);
           }
           else if (Counter == 3) {
-            o2 = b;
+            o2 = b;                                   //o2 is odometer low byte
+//            Serial.print("o2 = ");
+//            Serial.println(o2,HEX);
 
             odo1 = (o2 & 0xFF) | ((o1 & 0xFF) << 8) | ((o0 & 0xFF) << 16);         
             odo = ((odo1 - odo1 % 10) / 10);                                       
             Serial.print("ODO = ");
             Serial.println(odo);
+               // Check if the odometer value has reached 100000
+//            if (odo >= 100000) {
+//              odo = 0;  // Reset odometer to zero
+//              // Perform any additional actions here if needed
+//            }
             break; 
           }
         }
@@ -120,6 +131,8 @@ void Set()
 //  static unsigned long prevOdo = 0;
 //  static unsigned long prevTime = 0;   
   int storedOdometerValue = EEPROM.read(EEPROM_ADDRESS_O2)| (EEPROM.read(EEPROM_ADDRESS_O1) << 8) | (EEPROM.read(EEPROM_ADDRESS_O0) << 16);
+//  Serial.print("storedOdometerValue = ");
+//  Serial.println(storedOdometerValue);
   if (odo != storedOdometerValue)
   {
     q[0] = (odo >> 16) & 0xFF;
@@ -146,7 +159,7 @@ void Set()
 
 
 
-void eeprom() {
+void eeprom() {                                               //write directly to CAN
   q[0] = EEPROM.read(EEPROM_ADDRESS_O0);
   q[1] = EEPROM.read(EEPROM_ADDRESS_O1);
   q[2] = EEPROM.read(EEPROM_ADDRESS_O2);
